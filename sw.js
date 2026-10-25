@@ -4,7 +4,8 @@
 // version (les mises a jour arrivent normalement) et on en garde une copie ;
 // sans internet, on sert la derniere copie gardee.
 // Les appels a Supabase (autre adresse) ne sont JAMAIS touches ni gardes.
-const CACHE = "imj-mobile-v1";
+// Nom a part : la vraie appli imj-mobile utilise "imj-mobile-v...", au meme endroit du telephone.
+const CACHE = "imj-mobile-test-v1";
 const FICHIERS = ["./", "index.html", "manifest.json", "logo.png"];
 
 self.addEventListener("install", (evenement) => {
@@ -12,9 +13,14 @@ self.addEventListener("install", (evenement) => {
   self.skipWaiting();
 });
 
+// Au changement de version, on n'efface que les anciennes copies de CETTE appli.
+// Les applis de cours (ECM, HG, Francais) et les autres applis IMJ sont a la meme adresse
+// (florelramirez700-code.github.io) et partagent le meme stockage : on n'y touche pas.
 self.addEventListener("activate", (evenement) => {
   evenement.waitUntil(
-    caches.keys().then((cles) => Promise.all(cles.filter((cle) => cle !== CACHE).map((cle) => caches.delete(cle))))
+    caches.keys().then((cles) => Promise.all(
+      cles.filter((cle) => cle.startsWith("imj-mobile-test-v") && cle !== CACHE).map((cle) => caches.delete(cle))
+    ))
   );
   self.clients.claim();
 });
